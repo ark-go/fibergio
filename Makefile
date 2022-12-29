@@ -6,6 +6,18 @@ PROJECTNAME=$(shell basename `pwd`)
 
 .SILENT: build run getlasttag buildzip buildwin buildlinux buildwasm www buildandroid
 
+wasm:
+# скопировать из каталога GO куда надо ,   cp "$(go env GOROOT)/misc/wasm/wasm_exec.js" .
+	@echo $$($(version))
+	$(info +Компиляция Wasm)
+	GOOS=js GOARCH=wasm go build -ldflags "-s -w -X 'main.versionProg=$$($(version))'" -o ./bin/wasm/html/$(PROJECTNAME).wasm cmd/wasm/main.go
+
+linux:
+	@echo $$($(version))
+	$(info +Компиляция Linux)
+	go build -ldflags "-s -w -X 'main.versionProg=$$($(version))'" -o ./bin/main/$(PROJECTNAME) cmd/main/main.go
+	./bin/main/$(PROJECTNAME)
+
 
 buildlinux:
 	@echo $$($(version))
@@ -18,9 +30,11 @@ buildwin:
 	$(info +Компиляция windows)
 	CGO_ENABLED=1 CC=x86_64-w64-mingw32-gcc GOOS=windows GOARCH=amd64 go build -o ./bin/main/$(PROJECTNAME).exe -tags static -ldflags "-s -w -X 'main.versionProg=$$($(version))'" cmd/main/main.go
 
-#buildwasm:
-#	$(info +Компиляция WASM)
-#	PROJECTNAME="xxxx" go run gioui.org/cmd/gogio -ldflags "-s -w -X 'main.versionProg=$$($(version))'" -o wasm -target js cmd/main/main.go 
+gio:
+	$(info +Компиляция WASM)
+	PROJECTNAME="xxxx" /home/arkadii/go/bin/gogio -ldflags "-s -w -X 'main.versionProg=$$($(version))'" -o ./bin/main/html/gio -target js cmd/gio/main.go 
+	cp ./bin/main/html/gio/main.wasm ./bin/main/html/main.wasm 
+	cp ./bin/main/html/gio/wasm.js ./bin/main/html/wasm.js 
 
 buildandroid:
 	$(info +Компиляция Android)
